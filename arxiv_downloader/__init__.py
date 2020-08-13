@@ -81,14 +81,14 @@ class ArXiv(object):
       for y in small_y_range:
         for m in month_range:
           for p in ["%04d" % i for i in range(1, 9999)]:
-            list_of_urls.append("{}{}.{}".format(y, m, p))
+            list_of_urls.append("https://export.arxiv.org/abs/{}{}.{}".format(y, m, p))
       for y in large_y_range:
         for m in month_range:
           for p in ["%05d" % i for i in range(1, 99999)]:
-            list_of_urls.append("{}{}.{}".format(y, m, p))
+            list_of_urls.append("https://export.arxiv.org/abs/{}{}.{}".format(y, m, p))
       print(f"Generated {len(list_of_urls)} urls")
       result_urls = []
       results = ThreadPool(multiprocessing.cpu_count()).imap_unordered(ArXiv.fetch_url, list_of_urls)
       for f, url in results:
         if f is True:
-          fout.write("https://export.arxiv.org/abs/" + url)
+          fout.write(url)
