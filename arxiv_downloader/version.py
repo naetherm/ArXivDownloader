@@ -3,4 +3,4 @@
 # Chair of Algorithms and Data Structures.
 # Markus Näther <naetherm@informatik.uni-freiburg.de>
 
-version_str = "1.0"
+version_str = "1.1"

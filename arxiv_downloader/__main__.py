@@ -14,7 +14,10 @@ def main(argv=None):
   if argv == None:
     argv = sys.argv[1:]
 
-  parser = argparse.ArgumentParser(prog="arxiv_downloader", add_help=False)
+  parser = argparse.ArgumentParser(
+    prog="arxiv_downloader", 
+    description="Downloads a single paper source code by its id (--paper-id) to the download directory (--download-dir).", 
+    add_help=True)
 
   parser.add_argument(
     "--paper-id",
@@ -36,14 +39,31 @@ def main(argv=None):
   ArXiv.download_by_pid(args.paper_id, args.download_dir)
 
 def fetch_main():
-  ArXiv.fetch_papers()
+  
+  parser = argparse.ArgumentParser(
+    prog="arxiv_fetcher", 
+    description="Script for retrieving and generating the paper-ids.txt file.", 
+    add_help=True)
+
+  parser.add_argument(
+    "--data-dir",
+    dest="data_dir",
+    type=str,
+    required=True,
+    help="The path to the directory where the paper-ids.txt should be saved."
+  )
+  args = parser.parse_args()
+  ArXiv.fetch_papers(args.data_dir)
 
 def autoload_main(argv=None):
 
   if argv == None:
     argv = sys.argv[1:]
 
-  parser = argparse.ArgumentParser(prog="arxiv_autoload", add_help=False)
+  parser = argparse.ArgumentParser(
+    prog="arxiv_autoload", 
+    description="Downloads all paper ids given by a file (--paper-ids) to a specific directory (--download-dir)",
+    add_help=True)
   parser.add_argument(
     "--paper-ids",
     dest="paper_ids",

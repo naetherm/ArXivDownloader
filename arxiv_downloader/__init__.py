@@ -8,6 +8,9 @@ import os
 import requests
 import urllib.request
 import logging
+import multiprocessing
+from multiprocessing.pool import ThreadPool
+from time import time as timer
 
 from bs4 import BeautifulSoup
 
@@ -56,6 +59,14 @@ class ArXiv(object):
   def download_by_pid(pid, download_dir):
     paper = ArXivPaper(pid, download_dir)
     ArXiv.download(paper)
+    
+  @staticmethod
+  def fetch_url(url):
+    try:
+      response = urllib.request.urlopen(url)
+      return True, url
+    except Exception as e:
+      return False, url
 
   @staticmethod
   def fetch_papers(data_dir):
@@ -65,20 +76,19 @@ class ArXiv(object):
     large_y_range = ["15", "16", "17", "18", "19", "20"]
     month_range = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
 
+    list_of_urls = []
     with open (data_dir+"/paper_ids.txt", 'w') as fout:
       for y in small_y_range:
         for m in month_range:
           for p in ["%04d" % i for i in range(1, 9999)]:
-            try:
-              urllib.request.urlopen("https://export.arxiv.org/abs/{}{}.{}".format(y, m, p))
-              fout.write("{}{}.{}\n".format(y, m, p))
-            except:
-              break
+            list_of_urls.append("{}{}.{}".format(y, m, p))
       for y in large_y_range:
         for m in month_range:
           for p in ["%05d" % i for i in range(1, 99999)]:
-            try:
-              urllib.request.urlopen("https://export.arxiv.org/abs/{}{}.{}".format(y, m, p))
-              fout.write("{}{}.{}\n".format(y, m, p))
-            except:
-              break
+            list_of_urls.append("{}{}.{}".format(y, m, p))
+      print(f"Generated {len(list_of_urls)} urls")
+      result_urls = []
+      results = ThreadPool(multiprocessing.cpu_count()).imap_unordered(ArXiv.fetch_url, list_of_urls)
+      for f, url in results:
+        if f is True:
+          fout.write("https://export.arxiv.org/abs/" + url)
